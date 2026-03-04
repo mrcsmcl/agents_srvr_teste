@@ -73,6 +73,8 @@ Copy it to the path defined by `HOST_INIT_DB_SCRIPT` (default: `${HOST_BASE}/pos
 ```bash
 cp init/init-data.sh ${HOST_BASE}/postgres/init-data.sh
 chmod +x ${HOST_BASE}/postgres/init-data.sh
+# If the file was edited or cloned on Windows, strip CRLF line endings:
+sed -i 's/\r//' ${HOST_BASE}/postgres/init-data.sh
 ```
 
 > **Important:** this script only runs on the very first container start, when the data volume is empty. If the volume already exists, it is skipped automatically by PostgreSQL.

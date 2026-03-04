@@ -1,2 +1,9 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Shell scripts must always use LF (required for Linux containers)
+*.sh text eol=lf
+
+# Env files
+*.env text eol=lf
+.env* text eol=lf
