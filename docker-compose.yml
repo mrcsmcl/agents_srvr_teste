@@ -62,7 +62,7 @@ services:
       start_period: ${HC_START_PERIOD_POSTGRES:-${HC_START_PERIOD:-20s}}
 
   redis:
-    image: ${REDIS_IMAGE:-redis:7-alpine}
+    image: ${REDIS_IMAGE:-redis:7.0-alpine}
     container_name: ${REDIS_CONTAINER_NAME:-redis}
     restart: always
     command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
@@ -126,6 +126,7 @@ services:
       - HoloNet
 
   waha:
+    profiles: ["waha"]
     image: ${WAHA_IMAGE:-devlikeapro/waha:arm}
     container_name: ${WAHA_CONTAINER_NAME:-waha}
     environment:
