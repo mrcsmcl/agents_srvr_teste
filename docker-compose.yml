@@ -48,7 +48,7 @@ services:
       - "${HOST_POSTGRES_PORT:-54322}:5432"
     volumes:
       - ${HOST_DB_STORAGE}:/var/lib/postgresql/data
-      - ${HOST_INIT_DB_SCRIPT}:/docker-entrypoint-initdb.d/init-data.sql
+      - ${HOST_INIT_DB_DIR:-./init}:/docker-entrypoint-initdb.d
     networks:
       - HoloNet  
     healthcheck:
