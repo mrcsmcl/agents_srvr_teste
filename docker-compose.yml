@@ -128,7 +128,6 @@ services:
   waha:
     image: ${WAHA_IMAGE:-devlikeapro/waha:latest}
     container_name: ${WAHA_CONTAINER_NAME:-waha}
-    platform: ${WAHA_PLATFORM:-linux/amd64}
     environment:
       WHATSAPP_HOOK_URL: ${N8N_PROTOCOL}://${N8N_HOST}:${N8N_PORT}/
       WHATSAPP_DEFAULT_ENGINE: GOWS
