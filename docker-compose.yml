@@ -126,7 +126,7 @@ services:
       - HoloNet
 
   waha:
-    image: ${WAHA_IMAGE:-devlikeapro/waha:latest}
+    image: ${WAHA_IMAGE:-devlikeapro/waha:arm}
     container_name: ${WAHA_CONTAINER_NAME:-waha}
     environment:
       WHATSAPP_HOOK_URL: ${N8N_PROTOCOL}://${N8N_HOST}:${N8N_PORT}/
