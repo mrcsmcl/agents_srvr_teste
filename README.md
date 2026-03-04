@@ -15,10 +15,10 @@ Docker Compose stack for a conversational automation environment. Runs **n8n** (
 | `n8n` | Workflow automation (main) | `5678` |
 | `n8n-worker` | n8n queue worker | — |
 | `n8n-runner` | Task runner sidecar (JS/Python Code node) | — |
-| `waha` | WhatsApp bridge (WAHA) | `3510` |
+| `waha` | WhatsApp bridge (WAHA) - *Disabled by default* | `3510` |
 | `evolution` | WhatsApp bridge (Evolution API) | `8480` |
 
-All services communicate on the Docker network `HoloNet` (external, must be created before starting).
+All services communicate on the Docker network `HoloNet` (**external, must be created before starting**).
 
 ---
 
@@ -61,31 +61,35 @@ Edit `.env` and set all values. Key variables:
 
 ### 3. Create host directories
 
+Folder names on the host mirror the container names set in `.env`. Load the variables first, then create the directories:
+
 ```bash
-export HOST_BASE=/home/user/docker   # same value as in .env
+# Load variables from .env (adjust path if needed)
+export $(grep -E '^(HOST_BASE|POSTGRES_CONTAINER_NAME|N8N_CONTAINER_NAME|REDIS_CONTAINER_NAME|WAHA_CONTAINER_NAME|EVOLUTION_CONTAINER_NAME)=' .env | xargs)
 
 mkdir -p \
-  ${HOST_BASE}/postgres/data \
-  ${HOST_BASE}/postgres \
-  ${HOST_BASE}/n8n \
-  ${HOST_BASE}/redis \
-  ${HOST_BASE}/waha/sessions \
-  ${HOST_BASE}/waha/media \
-  ${HOST_BASE}/evolution/instances
+  ${HOST_BASE}/${POSTGRES_CONTAINER_NAME}/data \
+  ${HOST_BASE}/${N8N_CONTAINER_NAME} \
+  ${HOST_BASE}/${REDIS_CONTAINER_NAME} \
+  ${HOST_BASE}/${WAHA_CONTAINER_NAME}/sessions \
+  ${HOST_BASE}/${WAHA_CONTAINER_NAME}/media \
+  ${HOST_BASE}/${EVOLUTION_CONTAINER_NAME}/instances
 ```
 
 ### 4. Copy the PostgreSQL init script
 
-The init script runs **once on first boot** of the Postgres container (only when the data volume is empty). It creates the `n8n_user` and the dedicated `evolution` database.
+The init script runs **once on first boot** of the Postgres container (only when the data volume is empty). It creates the `n8n_user` and grants privileges on the database.
+
+**Important:** The Evolution database is created automatically by Evolution API on startup, you do not need to create it manually.
 
 ```bash
-cp init/init-data.sh ${HOST_BASE}/postgres/init-data.sh
-chmod +x ${HOST_BASE}/postgres/init-data.sh
+cp init/init-data.sh ${HOST_BASE}/${POSTGRES_CONTAINER_NAME}/init-data.sh
+chmod +x ${HOST_BASE}/${POSTGRES_CONTAINER_NAME}/init-data.sh
 ```
 
 > **If the file was cloned or edited on Windows**, strip CRLF line endings or the script will fail with a `syntax error: unexpected end of file`:
 > ```bash
-> sed -i 's/\r//' ${HOST_BASE}/postgres/init-data.sh
+> sed -i 's/\r//' ${HOST_BASE}/${POSTGRES_CONTAINER_NAME}/init-data.sh
 > ```
 
 > **Important:** If the Postgres data volume already exists (i.e. you already ran the stack once), the init script will NOT run again. In that case, skip to [Manual database setup](#manual-database-setup-existing-volume).
@@ -119,7 +123,7 @@ All containers should show `healthy` or `Up` after their respective start period
 
 ## Manual database setup (existing volume)
 
-If the Postgres data volume already exists, the init script is skipped. Run these commands manually after Postgres is running:
+If the Postgres data volume already exists, the init script is skipped. If you are migrating or need to manually create the n8n database user later, you can run these commands manually after Postgres is running:
 
 ```bash
 # Create the n8n app user
@@ -130,22 +134,9 @@ docker exec -it postgres psql -U postgres -c "
 docker exec -it postgres psql -U postgres -d n8n -c "
   GRANT CREATE ON SCHEMA public TO n8n_user;
 "
-
-# Create the dedicated Evolution database
-docker exec -it postgres psql -U postgres -c "
-  CREATE DATABASE evolution OWNER n8n_user;
-  GRANT ALL PRIVILEGES ON DATABASE evolution TO n8n_user;
-"
-docker exec -it postgres psql -U postgres -d evolution -c "
-  GRANT ALL PRIVILEGES ON SCHEMA public TO n8n_user;
-"
 ```
 
-Then restart Evolution so Prisma can apply its migrations to the empty database:
-
-```bash
-docker restart evolution
-```
+> **Note**: If you changed the container name in `.env` (like `POSTGRES_CONTAINER_NAME=agents_postgres`), replace `postgres` with your container name in the `docker exec` commands.
 
 ---
 
