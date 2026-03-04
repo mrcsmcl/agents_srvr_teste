@@ -54,8 +54,8 @@ Edit `.env` and set all values. Key variables:
 | `N8N_ENCRYPTION_KEY` | Long random string to encrypt n8n credentials |
 | `N8N_RUNNERS_AUTH_TOKEN` | Shared secret between n8n/worker and the runner container |
 | `POSTGRES_PASSWORD` | Root PostgreSQL password |
-| `POSTGRES_NON_ROOT_PASSWORD` | Password for the app user (`n8n_user`) — must match `DATABASE_CONNECTION_URI` |
-| `REDIS_PASSWORD` | Redis password — must match `CACHE_REDIS_URI` |
+| `POSTGRES_NON_ROOT_PASSWORD` | Password for the app user (`n8n_user`) |
+| `REDIS_PASSWORD` | Redis password |
 | `WAHA_API_KEY` | API key for WAHA |
 | `AUTHENTICATION_API_KEY` | API key for Evolution API |
 
@@ -167,7 +167,11 @@ N8N_SECURE_COOKIE=true
 
 ## Task runner (n8n-runner)
 
-The `n8n-runner` sidecar executes JavaScript and Python code from the Code node in external mode (isolated, recommended for production). The runner image version must match the n8n image version. If you pin a specific version, update both:
+The `n8n-runner` sidecar executes JavaScript and Python code from the Code node in external mode (isolated, recommended for production).
+
+The task broker runs inside the **main `n8n` container** (not `n8n-worker`). The runner connects to it via `N8N_RUNNERS_TASK_BROKER_URI`, which defaults to `http://n8n:5679`.
+
+The runner image version must match the n8n image version. If you pin a specific version, update both:
 
 ```dotenv
 N8N_IMAGE=docker.n8n.io/n8nio/n8n:1.85.0
@@ -179,8 +183,9 @@ N8N_RUNNERS_IMAGE=n8nio/runners:1.85.0
 ## Architecture notes
 
 - **WAHA on ARM64 (Raspberry Pi):** uses `devlikeapro/waha:arm`. For amd64, change to `devlikeapro/waha:latest`.
-- **Evolution database:** Evolution API uses a **dedicated `evolution` database**, separate from the `n8n` database. This avoids Prisma migration conflicts (`P3005: database schema is not empty`).
+- **Evolution database:** Evolution API uses a **dedicated `evolution` database** (controlled by `EVOLUTION_DB`), separate from the `n8n` database. This avoids Prisma migration conflicts (`P3005: database schema is not empty`).
 - **`n8n_user`** has access to both `n8n` and `evolution` databases.
+- **Connection URIs built automatically:** `DATABASE_CONNECTION_URI` (Evolution → Postgres) and `CACHE_REDIS_URI` (Evolution → Redis) are constructed in `docker-compose.yml` from existing variables (`POSTGRES_NON_ROOT_USER`, `POSTGRES_NON_ROOT_PASSWORD`, `REDIS_PASSWORD`). Changing a password in `.env` automatically updates the URI — no manual sync needed.
 
 ---
 
