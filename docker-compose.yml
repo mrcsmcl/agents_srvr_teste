@@ -14,6 +14,9 @@ x-shared: &shared
     - N8N_PROTOCOL=${N8N_PROTOCOL}
     - N8N_SECURE_COOKIE=${N8N_SECURE_COOKIE:-false}
     - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=${N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS:-true}
+    - N8N_RUNNERS_MODE=${N8N_RUNNERS_MODE:-external}
+    - N8N_RUNNERS_AUTH_TOKEN=${N8N_RUNNERS_AUTH_TOKEN}
+    - N8N_RUNNERS_BROKER_LISTEN_ADDRESS=0.0.0.0
     - OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=${OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS:-true}
     - NODE_ENV=${NODE_ENV}
     - WEBHOOK_URL=${N8N_PROTOCOL}://${N8N_HOST}:${N8N_PORT}/
@@ -108,6 +111,19 @@ services:
       timeout: ${HC_TIMEOUT_N8N_WORKER:-${HC_TIMEOUT:-10s}}
       retries: ${HC_RETRIES_N8N_WORKER:-${HC_RETRIES:-3}}
       start_period: ${HC_START_PERIOD_N8N_WORKER:-${HC_START_PERIOD:-60s}}
+
+  n8n-runner:
+    image: ${N8N_RUNNERS_IMAGE:-n8nio/runners:latest}
+    container_name: n8n_runner
+    restart: unless-stopped
+    environment:
+      - N8N_RUNNERS_AUTH_TOKEN=${N8N_RUNNERS_AUTH_TOKEN}
+      - N8N_RUNNERS_TASK_BROKER_URI=http://n8n-worker:5679
+      - N8N_RUNNERS_AUTO_SHUTDOWN_TIMEOUT=15
+    depends_on:
+      - n8n-worker
+    networks:
+      - HoloNet
 
   waha:
     image: ${WAHA_IMAGE:-devlikeapro/waha:latest}

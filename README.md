@@ -12,6 +12,7 @@ Docker Compose stack for a conversational automation environment. Runs **n8n** (
 | `redis` | Redis 7 (queue + cache) | `6379` |
 | `n8n` | Workflow automation (main) | `5678` |
 | `n8n-worker` | n8n queue worker | — |
+| `n8n-runner` | Task runner sidecar (JS/Python Code node) | — |
 | `waha` | WhatsApp bridge (WAHA) | `3510` |
 | `evolution` | WhatsApp bridge (Evolution API) | `8480` |
 
@@ -46,6 +47,7 @@ Edit `.env` and replace every `REPLACE_WITH_*` value with strong passwords/keys.
 | `HOST_BASE` | Base path on the host for all persistent data (e.g. `/home/user/docker`) |
 | `N8N_HOST` | IP or domain of the server — used for webhooks. Set to the **external/public** address in production. |
 | `N8N_ENCRYPTION_KEY` | Long random string used to encrypt n8n credentials |
+| `N8N_RUNNERS_AUTH_TOKEN` | Shared secret between n8n/worker and the runner container |
 | `POSTGRES_PASSWORD` | Root PostgreSQL password |
 | `POSTGRES_NON_ROOT_PASSWORD` | Password for the application user (`n8n_user`) |
 | `REDIS_PASSWORD` | Redis password |
