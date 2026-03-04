@@ -148,7 +148,7 @@ services:
     networks:
       - HoloNet
     healthcheck:
-      test: ["CMD-SHELL", "curl -f -s http://localhost:3000/api/version || exit 1"]
+      test: ["CMD-SHELL", "curl -f -s -H \"X-Api-Key: ${WAHA_API_KEY}\" http://localhost:3000/api/server/status || exit 1"]
       interval: ${HC_INTERVAL_WAHA:-${HC_INTERVAL:-60s}}
       timeout: ${HC_TIMEOUT_WAHA:-${HC_TIMEOUT:-10s}}
       retries: ${HC_RETRIES_WAHA:-${HC_RETRIES:-3}}
