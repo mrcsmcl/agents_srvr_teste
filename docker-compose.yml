@@ -127,7 +127,7 @@ services:
 
   waha:
     profiles:
-      - waha
+      - disabled
     image: ${WAHA_IMAGE:-devlikeapro/waha:arm}
     container_name: ${WAHA_CONTAINER_NAME:-waha}
     environment:
