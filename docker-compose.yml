@@ -38,6 +38,8 @@ x-shared: &shared
 
 services:
   postgres:
+    profiles:
+      - enabled  
     image: ${POSTGRES_IMAGE:-postgres:17}
     container_name: ${POSTGRES_CONTAINER_NAME:-postgres}
     restart: always
@@ -62,6 +64,8 @@ services:
       start_period: ${HC_START_PERIOD_POSTGRES:-${HC_START_PERIOD:-20s}}
 
   redis:
+    profiles:
+      - enabled  
     image: ${REDIS_IMAGE:-redis:7.0-alpine}
     container_name: ${REDIS_CONTAINER_NAME:-redis}
     restart: always
@@ -83,6 +87,8 @@ services:
       start_period: ${HC_START_PERIOD_REDIS:-${HC_START_PERIOD:-10s}}
 
   n8n:
+    profiles:
+      - enabled  
     <<: *shared
     image: ${N8N_IMAGE:-docker.n8n.io/n8nio/n8n:latest}
     container_name: ${N8N_CONTAINER_NAME:-n8n}
@@ -97,6 +103,8 @@ services:
       start_period: ${HC_START_PERIOD_N8N:-${HC_START_PERIOD:-180s}}
 
   n8n-worker:
+    profiles:
+      - enabled  
     <<: *shared
     container_name: ${N8N_WORKER_CONTAINER_NAME:-n8n_worker}
     image: ${N8N_IMAGE:-docker.n8n.io/n8nio/n8n:latest}
@@ -113,6 +121,8 @@ services:
       start_period: ${HC_START_PERIOD_N8N_WORKER:-${HC_START_PERIOD:-60s}}
 
   n8n-runner:
+    profiles:
+      - enabled  
     image: ${N8N_RUNNERS_IMAGE:-n8nio/runners:latest}
     container_name: ${N8N_RUNNER_CONTAINER_NAME:-n8n_runner}
     restart: unless-stopped
