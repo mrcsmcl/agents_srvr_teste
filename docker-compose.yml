@@ -167,6 +167,8 @@ services:
       start_period: ${HC_START_PERIOD_WAHA:-${HC_START_PERIOD:-90s}}
 
   evolution:
+    profiles:
+      - enabled  
     container_name: ${EVOLUTION_CONTAINER_NAME:-evolution}
     image: ${EVOLUTION_IMAGE:-evoapicloud/evolution-api:latest}
     restart: unless-stopped
